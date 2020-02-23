@@ -1,7 +1,15 @@
 <template>
   <v-app id="app">
     <v-content>
-      
+     <v-snackbar
+      v-model="snackbar"
+      top
+      color="error"
+      :timeout=3000
+    >
+      {{ textSnackbar }}
+
+    </v-snackbar>
       <v-container class="fill-height" fluid>
         <v-row align="center" justify="center">
           <v-col cols="12" sm="8" md="4">
@@ -12,7 +20,7 @@
               </v-toolbar>
 
               <v-card-text>
-                <v-form ref="form" v-model="valid" lazy-validation>
+                <v-form ref="form" v-if="!register" v-model="valid" lazy-validation>
                   <v-text-field
                     label="Correo electronico"
                     name="email"
@@ -36,8 +44,13 @@
 
                   <v-card-actions>
                     <v-spacer />
+                    <v-btn color="primary"  @click="register=true" text>¿No estás registrado?</v-btn>
+
                     <v-btn color="primary" :disabled="!valid" @click="validation">Iniciar sesion</v-btn>
                   </v-card-actions>
+                </v-form>
+                <v-form v-else>
+
                 </v-form>
               </v-card-text>
             </v-card>
@@ -55,6 +68,9 @@ const Cookie = process.client ? require("js-cookie") : undefined;
 export default {
   data() {
     return {
+      textSnackbar: '',
+      register:false,
+      snackbar:false,
       valid: false,
       email: "",
       password: "",
@@ -71,7 +87,6 @@ export default {
   methods: {
     validation() {
       if (this.$refs.form.validate()) {
-        this.snackbar = true;
         let params = { email: this.email, password: this.password };
         axios
           .post("https://socket-udem.herokuapp.com/user/login", params)
@@ -86,6 +101,8 @@ export default {
           })
           .catch(error => {
             console.log(error.response);
+            this.textSnackbar="El usuario o contraseña es incorrecto"
+            this.snackbar=true
           });
       }
     }

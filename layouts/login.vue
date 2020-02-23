@@ -1,6 +1,7 @@
 <template>
-  <v-app id="inspire">
+  <v-app id="app">
     <v-content>
+      
       <v-container class="fill-height" fluid>
         <v-row align="center" justify="center">
           <v-col cols="12" sm="8" md="4">
@@ -11,7 +12,7 @@
               </v-toolbar>
 
               <v-card-text>
-                <v-form ref="form" v-if="!autenticado" v-model="valid" lazy-validation>
+                <v-form ref="form" v-model="valid" lazy-validation>
                   <v-text-field
                     label="Correo electronico"
                     name="email"
@@ -35,15 +36,9 @@
 
                   <v-card-actions>
                     <v-spacer />
-                    <v-btn
-                      color="primary"
-                      type="submit"
-                      :disabled="!valid || prueba=='melo2'"
-                      @click="validation"
-                    >Iniciar sesion</v-btn>
+                    <v-btn color="primary" :disabled="!valid" @click="validation">Iniciar sesion</v-btn>
                   </v-card-actions>
                 </v-form>
-                <v-form v-else></v-form>
               </v-card-text>
             </v-card>
           </v-col>
@@ -54,12 +49,12 @@
 </template>
 
 <script>
-import axios from 'axios'
+import axios from "axios";
+const Cookie = process.client ? require("js-cookie") : undefined;
+
 export default {
   data() {
     return {
-      autenticado: false,
-      prueba: "melo",
       valid: false,
       email: "",
       password: "",
@@ -74,21 +69,24 @@ export default {
     source: String
   },
   methods: {
-    async validation() {
+    validation() {
       if (this.$refs.form.validate()) {
         this.snackbar = true;
-        try {
-          const state = await axios.post("https://socket-udem.herokuapp.com/user/login", {
-            email: this.email,
-            password: this.password
+        let params = { email: this.email, password: this.password };
+        axios
+          .post("https://socket-udem.herokuapp.com/user/login", params)
+          .then(response => {
+            const auth = response.data.token;
+            const id = response.data.data._id;
+            this.$store.commit("setAuth", auth);
+            this.$store.commit("setId", id); // mutating to store for client rendering
+            Cookie.set("auth", auth); // saving token in cookie for server rendering
+            Cookie.set("id", id); // saving token in cookie for server rendering
+            this.$router.push("/inspire");
           })
-           alert("Entro en teoria")
-        } catch (error) {
-          alert(error)
-          throw error;
-        }
-
-        this.autenticado = true;
+          .catch(error => {
+            console.log(error.response);
+          });
       }
     }
   }

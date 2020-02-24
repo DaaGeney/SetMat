@@ -2,6 +2,8 @@
   <v-app id="app">
     <v-content>
       <v-snackbar v-model="snackbar" top color="error" :timeout="3000">{{ textSnackbar }}</v-snackbar>
+      <v-snackbar v-model="snackbarSuccess" top color="success" :timeout="3000">{{ textSnackbar }}</v-snackbar>
+
       <v-container class="fill-height" fluid>
         <v-row align="center" justify="center">
           <v-col cols="12" sm="8" md="4">
@@ -94,13 +96,13 @@ import axios from "axios";
 const Cookie = process.client ? require("js-cookie") : undefined;
 
 export default {
- 
   data() {
     return {
-      textSnackbar: '',
-      name:'',
+      textSnackbar: "",
+      name: "",
       register: false,
       snackbar: false,
+      snackbarSuccess: false,
       valid: false,
       email: "",
       password: "",
@@ -108,8 +110,11 @@ export default {
         v => !!v || "Correo electronico necesario",
         v => /.+@.+\..+/.test(v) || "Correo invalido"
       ],
-      passwordRules: [v => !!v || "Contraseña necesario"],
-      nameRules:[v => !!v || "Nombre necesaria"],
+      passwordRules: [
+        v => !!v || "Contraseña necesario",
+        v => (v && v.length >= 6) || "Contraseña demasiado corta"
+      ],
+      nameRules: [v => !!v || "Nombre necesaria"]
     };
   },
   props: {
@@ -134,27 +139,31 @@ export default {
             console.log(error.response);
             this.textSnackbar = "El usuario o contraseña es incorrecto";
             this.snackbar = true;
-            this.name='',
-            this.password=''
-            this.email=''
+            (this.name = ""), (this.password = "");
+            this.email = "";
           });
       }
     },
-    registerUser(){
+    registerUser() {
       if (this.$refs.form.validate()) {
-        let params = { name: this.name, email: this.email, password: this.password };
+        let params = {
+          name: this.name,
+          email: this.email,
+          password: this.password
+        };
         axios
           .post("https://socket-udem.herokuapp.com/user/createUser", params)
           .then(response => {
-            this.textSnackbar = "registro correcto";
-            this.snackbar = true;
-            this.register=false
+            this.snackbarSuccess = true;
+            this.textSnackbar = "Registro correcto";
+            this.snackbarSuccess = true;
+
+            this.register = false;
           })
           .catch(error => {
             this.textSnackbar = error.response.data.message;
             this.snackbar = true;
           });
-      
       }
     }
   }

@@ -1,8 +1,16 @@
 <template>
   <v-app id="app">
     <v-content>
-      <v-snackbar v-model="snackbar" top color="error" :timeout="3000">{{ textSnackbar }}</v-snackbar>
-      <v-snackbar v-model="snackbarSuccess" top color="success" :timeout="3000">{{ textSnackbar }}</v-snackbar>
+      <v-snackbar v-model="snackbar" top color="error" :timeout="3000">{{
+        textSnackbar
+      }}</v-snackbar>
+      <v-snackbar
+        v-model="snackbarSuccess"
+        top
+        color="success"
+        :timeout="3000"
+        >{{ textSnackbar }}</v-snackbar
+      >
 
       <v-container class="fill-height" fluid>
         <v-row align="center" justify="center">
@@ -14,7 +22,12 @@
               </v-toolbar>
 
               <v-card-text>
-                <v-form ref="form" v-if="!register" v-model="valid" lazy-validation>
+                <v-form
+                  ref="form"
+                  v-if="!register"
+                  v-model="valid"
+                  lazy-validation
+                >
                   <v-text-field
                     label="Correo electronico"
                     name="email"
@@ -38,9 +51,16 @@
 
                   <v-card-actions>
                     <v-spacer />
-                    <v-btn color="primary" @click="register=true" text>¿No estás registrado?</v-btn>
+                    <v-btn color="primary" @click="register = true" text
+                      >¿No estás registrado?</v-btn
+                    >
 
-                    <v-btn color="primary" :disabled="!valid" @click="validation">Iniciar sesion</v-btn>
+                    <v-btn
+                      color="primary"
+                      :disabled="!valid"
+                      @click="validation"
+                      >Iniciar sesion</v-btn
+                    >
                   </v-card-actions>
                 </v-form>
                 <v-form v-else ref="form" v-model="valid" lazy-validation>
@@ -77,9 +97,16 @@
 
                   <v-card-actions>
                     <v-spacer />
-                    <v-btn color="primary" @click="register=false" text>Estoy registrado</v-btn>
+                    <v-btn color="primary" @click="register = false" text
+                      >Estoy registrado</v-btn
+                    >
 
-                    <v-btn color="primary" :disabled="!valid" @click="registerUser">Registrar</v-btn>
+                    <v-btn
+                      color="primary"
+                      :disabled="!valid"
+                      @click="registerUser"
+                      >Registrar</v-btn
+                    >
                   </v-card-actions>
                 </v-form>
               </v-card-text>
@@ -92,7 +119,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import { logIn, register } from "../helpers/apiCalls/users";
 const Cookie = process.client ? require("js-cookie") : undefined;
 
 export default {
@@ -114,7 +141,7 @@ export default {
         v => !!v || "Contraseña necesario",
         v => (v && v.length >= 6) || "Contraseña demasiado corta"
       ],
-      nameRules: [v => !!v || "Nombre necesaria"]
+      nameRules: [v => !!v || "Nombre necesario"]
     };
   },
   props: {
@@ -124,8 +151,8 @@ export default {
     validation() {
       if (this.$refs.form.validate()) {
         let params = { email: this.email, password: this.password };
-        axios
-          .post("https://socket-udem.herokuapp.com/user/login", params)
+
+        logIn(params)
           .then(response => {
             const auth = response.data.token;
             const id = response.data.data._id;
@@ -151,8 +178,7 @@ export default {
           email: this.email,
           password: this.password
         };
-        axios
-          .post("https://socket-udem.herokuapp.com/user/createUser", params)
+        register(params)
           .then(response => {
             this.snackbarSuccess = true;
             this.textSnackbar = "Registro correcto";

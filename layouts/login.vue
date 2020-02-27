@@ -55,7 +55,7 @@
                       >¿No estás registrado?</v-btn
                     >
 
-                    <v-btn
+                    <v-btn rounded 
                       color="primary"
                       :disabled="!valid"
                       @click="validation"
@@ -101,7 +101,7 @@
                       >Estoy registrado</v-btn
                     >
 
-                    <v-btn
+                    <v-btn rounded
                       color="primary"
                       :disabled="!valid"
                       @click="registerUser"
@@ -151,7 +151,7 @@ export default {
     validation() {
       if (this.$refs.form.validate()) {
         let params = { email: this.email, password: this.password };
-
+        
         logIn(params)
           .then(response => {
             const auth = response.data.token;
@@ -163,7 +163,6 @@ export default {
             this.$router.push("/");
           })
           .catch(error => {
-            console.log(error.response);
             this.textSnackbar = "El usuario o contraseña es incorrecto";
             this.snackbar = true;
             (this.name = ""), (this.password = "");

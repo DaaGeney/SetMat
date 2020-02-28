@@ -4,23 +4,35 @@
       <v-container>
         <v-card elevation="10">
           <v-card-title class="font-weight-black">CREAR SALA</v-card-title>
-
           <v-row align="center" justify="center">
             <v-col cols="11" sm="11">
-              <v-text-field label="Categoria" v-model="category" outlined shaped></v-text-field>
+              <v-form
+                  ref="form"
+                  lazy-validation
+                >
+              <v-text-field
+                label="Categoria"
+                v-model="category"
+                outlined
+                :rules="categoryRules"
+                required
+                shaped
+              ></v-text-field>
               <v-btn
                 min-width="100%"
                 rounded
                 color="primary"
                 dark
                 @click="createUniqueRoom"
+                
               >Crear sala</v-btn>
+              </v-form>
             </v-col>
           </v-row>
         </v-card>
       </v-container>
       <v-container>
-        <v-card elevation="10">
+        <v-card elevation="10" v-if="roomCreated">
           <v-row align="center" justify="center">
             <v-col cols="11" sm="11">
               <div class="text-center">
@@ -28,7 +40,7 @@
 
                 <p class="display-2">{{codeRoom}}</p>
               </div>
-              <v-simple-table height="300px">
+              <v-simple-table height="200px">
                 <template v-slot:default>
                   <thead>
                     <tr>
@@ -59,9 +71,11 @@ export default {
   middleware: "authenticated",
   data() {
     return {
+      roomCreated:false,
       codeRoom: "",
       teamsRoom: "",
-      category: ""
+      category: "",
+      categoryRules: [v => !!v || "Debe digitar categoria"]
     };
   },
 
@@ -69,22 +83,26 @@ export default {
     /**
      * Listerners for the sockets
      */
-    
+
     socket.on("main", data => {
       console.log(data, "llamado");
     });
     socket.on("getWebTeams", data => {
-        this.teamsRoom = data.teams;
-      });
+      this.teamsRoom = data.teams;
+    });
   },
   methods: {
     createUniqueRoom() {
-      createRoom({ category: this.category })
-        .then(response => {
-          this.codeRoom = response.data.data.uniqueCode;
-        })
-        .catch(err => alert(err));
-    },
+      if (this.$refs.form.validate()) {
+        createRoom({ category: this.category })
+          .then(response => {
+            this.codeRoom = response.data.data.uniqueCode;
+            this.roomCreated = true
+            
+          })
+          .catch(err => alert(err));
+      }
+    }
   }
 };
 </script>

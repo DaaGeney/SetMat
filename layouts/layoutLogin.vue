@@ -29,22 +29,23 @@
                   lazy-validation
                 >
                   <v-text-field
+                  id="emailLogin"
                     label="Correo electronico"
-                    name="email"
+                    name="emailLogin"
                     prepend-icon="email"
                     type="email"
                     :rules="emailRules"
-                    v-model="email"
+                    v-model="emailLogin"
                     required
                   />
 
                   <v-text-field
-                    id="password"
+                    id="passwordLogin"
                     label="Contraseña"
-                    name="password"
+                    name="passwordLogin"
                     prepend-icon="lock"
                     type="password"
-                    v-model="password"
+                    v-model="passwordLogin"
                     :rules="passwordRules"
                     required
                   />
@@ -58,13 +59,14 @@
                     <v-btn rounded 
                       color="primary"
                       :disabled="!valid"
-                      @click="validation"
+                      @click="validate"
                       >Iniciar sesion</v-btn
                     >
                   </v-card-actions>
                 </v-form>
                 <v-form v-else ref="form" v-model="valid" lazy-validation>
                   <v-text-field
+                  id="name"
                     label="Nombre"
                     name="name"
                     prepend-icon="person"
@@ -75,6 +77,7 @@
                   />
 
                   <v-text-field
+                  id="email"
                     label="Correo electronico"
                     name="email"
                     prepend-icon="email"
@@ -119,7 +122,7 @@
 </template>
 
 <script>
-import { logIn, register } from "../helpers/apiCalls/users";
+import { logIn, registerNewUser } from "../helpers/apiCalls/users";
 const Cookie = process.client ? require("js-cookie") : undefined;
 
 export default {
@@ -133,6 +136,8 @@ export default {
       valid: false,
       email: "",
       password: "",
+      emailLogin: "",
+      passwordLogin: "",
       emailRules: [
         v => !!v || "Correo electronico necesario",
         v => /.+@.+\..+/.test(v) || "Correo invalido"
@@ -148,9 +153,9 @@ export default {
     source: String
   },
   methods: {
-    validation() {
+    validate() {
       if (this.$refs.form.validate()) {
-        let params = { email: this.email, password: this.password };
+        let params = { email: this.emailLogin, password: this.passwordLogin };
         
         logIn(params)
           .then(response => {
@@ -177,7 +182,7 @@ export default {
           email: this.email,
           password: this.password
         };
-        register(params)
+        registerNewUser(params)
           .then(response => {
             this.snackbarSuccess = true;
             this.textSnackbar = "Registro correcto";

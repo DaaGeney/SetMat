@@ -89,6 +89,7 @@ export default {
     });
     socket.on("getWebTeams", data => {
       this.teamsRoom = data.teams;
+
     });
   },
   methods: {
@@ -98,6 +99,7 @@ export default {
           .then(response => {
             this.codeRoom = response.data.data.uniqueCode;
             this.roomCreated = true
+            this.teamsRoom={}
             
           })
           .catch(err => alert(err));

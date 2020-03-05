@@ -3,6 +3,6 @@
 <script>
 export default {
   middleware: "notAuthenticated",
-  layout: "login"
+  layout: "layoutLogin"
 };
 </script>

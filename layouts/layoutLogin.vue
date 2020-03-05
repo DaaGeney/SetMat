@@ -1,16 +1,12 @@
 <template>
   <v-app id="app">
     <v-content>
-      <v-snackbar v-model="snackbar" top color="error" :timeout="3000">{{
+      <v-snackbar v-model="snackbar" top color="error" :timeout="3000">
+        {{
         textSnackbar
-      }}</v-snackbar>
-      <v-snackbar
-        v-model="snackbarSuccess"
-        top
-        color="success"
-        :timeout="3000"
-        >{{ textSnackbar }}</v-snackbar
-      >
+        }}
+      </v-snackbar>
+      <v-snackbar v-model="snackbarSuccess" top color="success" :timeout="3000">{{ textSnackbar }}</v-snackbar>
 
       <v-container class="fill-height" fluid>
         <v-row align="center" justify="center">
@@ -18,53 +14,56 @@
             <v-card class="elevation-12">
               <v-toolbar color="primary" dark flat>
                 <v-toolbar-title>¡Hola, profe!</v-toolbar-title>
+               
                 <v-spacer />
               </v-toolbar>
+               <v-progress-linear
+                  :active="loading"
+                  :indeterminate="loading"
+                  absolute
+                  bottom
+                  color="primary"
+                ></v-progress-linear>
 
               <v-card-text>
-                <v-form
-                  ref="form"
-                  v-if="!register"
-                  v-model="valid"
-                  lazy-validation
-                >
+                <v-form ref="form" v-if="!register" v-model="valid" lazy-validation>
                   <v-text-field
+                    id="emailLogin"
                     label="Correo electronico"
-                    name="email"
+                    name="emailLogin"
                     prepend-icon="email"
                     type="email"
                     :rules="emailRules"
-                    v-model="email"
+                    v-model="emailLogin"
                     required
                   />
 
                   <v-text-field
-                    id="password"
+                    id="passwordLogin"
                     label="Contraseña"
-                    name="password"
+                    name="passwordLogin"
                     prepend-icon="lock"
                     type="password"
-                    v-model="password"
+                    v-model="passwordLogin"
                     :rules="passwordRules"
                     required
                   />
 
                   <v-card-actions>
                     <v-spacer />
-                    <v-btn color="primary" @click="register = true" text
-                      >¿No estás registrado?</v-btn
-                    >
+                    <v-btn color="primary" @click="register = true" text>¿No estás registrado?</v-btn>
 
                     <v-btn
+                      rounded
                       color="primary"
                       :disabled="!valid"
-                      @click="validation"
-                      >Iniciar sesion</v-btn
-                    >
+                      @click="validate"
+                    >Iniciar sesion</v-btn>
                   </v-card-actions>
                 </v-form>
                 <v-form v-else ref="form" v-model="valid" lazy-validation>
                   <v-text-field
+                    id="name"
                     label="Nombre"
                     name="name"
                     prepend-icon="person"
@@ -75,6 +74,7 @@
                   />
 
                   <v-text-field
+                    id="email"
                     label="Correo electronico"
                     name="email"
                     prepend-icon="email"
@@ -97,16 +97,14 @@
 
                   <v-card-actions>
                     <v-spacer />
-                    <v-btn color="primary" @click="register = false" text
-                      >Estoy registrado</v-btn
-                    >
+                    <v-btn color="primary" @click="register = false" text>Estoy registrado</v-btn>
 
                     <v-btn
+                      rounded
                       color="primary"
                       :disabled="!valid"
                       @click="registerUser"
-                      >Registrar</v-btn
-                    >
+                    >Registrar</v-btn>
                   </v-card-actions>
                 </v-form>
               </v-card-text>
@@ -119,13 +117,14 @@
 </template>
 
 <script>
-import { logIn, register } from "../helpers/apiCalls/users";
+import { logIn, registerNewUser } from "../helpers/apiCalls/users";
 const Cookie = process.client ? require("js-cookie") : undefined;
 
 export default {
   data() {
     return {
       textSnackbar: "",
+      loading:false,
       name: "",
       register: false,
       snackbar: false,
@@ -133,6 +132,8 @@ export default {
       valid: false,
       email: "",
       password: "",
+      emailLogin: "",
+      passwordLogin: "",
       emailRules: [
         v => !!v || "Correo electronico necesario",
         v => /.+@.+\..+/.test(v) || "Correo invalido"
@@ -148,9 +149,10 @@ export default {
     source: String
   },
   methods: {
-    validation() {
+    validate() {
       if (this.$refs.form.validate()) {
-        let params = { email: this.email, password: this.password };
+        this.loading=true
+        let params = { email: this.emailLogin, password: this.passwordLogin };
 
         logIn(params)
           .then(response => {
@@ -160,10 +162,11 @@ export default {
             this.$store.commit("setId", id); // mutating to store for client rendering
             Cookie.set("auth", auth); // saving token in cookie for server rendering
             Cookie.set("id", id); // saving token in cookie for server rendering
+            this.loading=false
             this.$router.push("/");
           })
           .catch(error => {
-            console.log(error.response);
+            this.loading=false
             this.textSnackbar = "El usuario o contraseña es incorrecto";
             this.snackbar = true;
             (this.name = ""), (this.password = "");
@@ -178,7 +181,7 @@ export default {
           email: this.email,
           password: this.password
         };
-        register(params)
+        registerNewUser(params)
           .then(response => {
             this.snackbarSuccess = true;
             this.textSnackbar = "Registro correcto";

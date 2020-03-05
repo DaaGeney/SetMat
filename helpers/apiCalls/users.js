@@ -5,6 +5,6 @@ export const logIn = body => {
   return axios.post(`${url}/user/login`, body);
 };
 
-export const register = body => {
-  axios.post(`${url}/user/createUser`, body);
+export const registerNewUser = body => {
+  return axios.post(`${url}/user/createUser`, body);
 };

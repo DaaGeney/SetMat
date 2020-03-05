@@ -6,28 +6,35 @@
           <v-card-title class="font-weight-black">CREAR SALA</v-card-title>
           <v-row align="center" justify="center">
             <v-col cols="11" sm="11">
-              <v-form
-                  ref="form"
-                  lazy-validation
+              <v-form ref="form" lazy-validation>
+                <v-text-field
+                  label="Categoria"
+                  v-model="category"
+                  outlined
+                  :rules="categoryRules"
+                  required
+                  shaped
+                ></v-text-field>
+                <v-btn
+                  min-width="100%"
+                  rounded
+                  color="primary"
+                  v-show="!startRoom"
+                  dark
+                  @click="createUniqueRoom"
+                  >Crear sala</v-btn
                 >
-              <v-text-field
-                label="Categoria"
-                v-model="category"
-                outlined
-                :rules="categoryRules"
-                required
-                shaped
-              ></v-text-field>
-              <v-btn
-                min-width="100%"
-                rounded
-                color="primary"
-                dark
-                @click="createUniqueRoom"
-                
-              >Crear sala</v-btn>
               </v-form>
             </v-col>
+            <v-btn
+              style="margin-bottom: 20px;"
+              min-width="40%"
+              rounded
+              color="secondary"
+              v-show="startRoom"
+              @click="startGame"
+              >Empezar juego</v-btn
+            >
           </v-row>
         </v-card>
       </v-container>
@@ -37,8 +44,7 @@
             <v-col cols="11" sm="11">
               <div class="text-center">
                 <p>El codigo de la sala es:</p>
-
-                <p class="display-2">{{codeRoom}}</p>
+                <p class="display-2">{{ codeRoom }}</p>
               </div>
               <v-simple-table height="200px">
                 <template v-slot:default>
@@ -71,7 +77,8 @@ export default {
   middleware: "authenticated",
   data() {
     return {
-      roomCreated:false,
+      roomCreated: false,
+      startRoom: false,
       codeRoom: "",
       teamsRoom: "",
       category: "",
@@ -83,13 +90,11 @@ export default {
     /**
      * Listerners for the sockets
      */
-
     socket.on("main", data => {
       console.log(data, "llamado");
     });
     socket.on("getWebTeams", data => {
       this.teamsRoom = data.teams;
-
     });
   },
   methods: {
@@ -97,13 +102,17 @@ export default {
       if (this.$refs.form.validate()) {
         createRoom({ category: this.category })
           .then(response => {
+            this.startRoom = true;
             this.codeRoom = response.data.data.uniqueCode;
-            this.roomCreated = true
-            this.teamsRoom={}
-            
+            this.roomCreated = true;
+            this.teamsRoom = {};
           })
           .catch(err => alert(err));
       }
+    },
+    startGame() {
+      socket.emit("startGame", { startGame: true });
+      alert("La sala ha iniciado"); //QUITAR ESTO
     }
   }
 };

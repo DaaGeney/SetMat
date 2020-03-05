@@ -1,16 +1,12 @@
 <template>
   <v-app id="app">
     <v-content>
-      <v-snackbar v-model="snackbar" top color="error" :timeout="3000">{{
+      <v-snackbar v-model="snackbar" top color="error" :timeout="3000">
+        {{
         textSnackbar
-      }}</v-snackbar>
-      <v-snackbar
-        v-model="snackbarSuccess"
-        top
-        color="success"
-        :timeout="3000"
-        >{{ textSnackbar }}</v-snackbar
-      >
+        }}
+      </v-snackbar>
+      <v-snackbar v-model="snackbarSuccess" top color="success" :timeout="3000">{{ textSnackbar }}</v-snackbar>
 
       <v-container class="fill-height" fluid>
         <v-row align="center" justify="center">
@@ -18,18 +14,21 @@
             <v-card class="elevation-12">
               <v-toolbar color="primary" dark flat>
                 <v-toolbar-title>¡Hola, profe!</v-toolbar-title>
+               
                 <v-spacer />
               </v-toolbar>
+               <v-progress-linear
+                  :active="loading"
+                  :indeterminate="loading"
+                  absolute
+                  bottom
+                  color="primary"
+                ></v-progress-linear>
 
               <v-card-text>
-                <v-form
-                  ref="form"
-                  v-if="!register"
-                  v-model="valid"
-                  lazy-validation
-                >
+                <v-form ref="form" v-if="!register" v-model="valid" lazy-validation>
                   <v-text-field
-                  id="emailLogin"
+                    id="emailLogin"
                     label="Correo electronico"
                     name="emailLogin"
                     prepend-icon="email"
@@ -52,21 +51,19 @@
 
                   <v-card-actions>
                     <v-spacer />
-                    <v-btn color="primary" @click="register = true" text
-                      >¿No estás registrado?</v-btn
-                    >
+                    <v-btn color="primary" @click="register = true" text>¿No estás registrado?</v-btn>
 
-                    <v-btn rounded 
+                    <v-btn
+                      rounded
                       color="primary"
                       :disabled="!valid"
                       @click="validate"
-                      >Iniciar sesion</v-btn
-                    >
+                    >Iniciar sesion</v-btn>
                   </v-card-actions>
                 </v-form>
                 <v-form v-else ref="form" v-model="valid" lazy-validation>
                   <v-text-field
-                  id="name"
+                    id="name"
                     label="Nombre"
                     name="name"
                     prepend-icon="person"
@@ -77,7 +74,7 @@
                   />
 
                   <v-text-field
-                  id="email"
+                    id="email"
                     label="Correo electronico"
                     name="email"
                     prepend-icon="email"
@@ -100,16 +97,14 @@
 
                   <v-card-actions>
                     <v-spacer />
-                    <v-btn color="primary" @click="register = false" text
-                      >Estoy registrado</v-btn
-                    >
+                    <v-btn color="primary" @click="register = false" text>Estoy registrado</v-btn>
 
-                    <v-btn rounded
+                    <v-btn
+                      rounded
                       color="primary"
                       :disabled="!valid"
                       @click="registerUser"
-                      >Registrar</v-btn
-                    >
+                    >Registrar</v-btn>
                   </v-card-actions>
                 </v-form>
               </v-card-text>
@@ -129,6 +124,7 @@ export default {
   data() {
     return {
       textSnackbar: "",
+      loading:false,
       name: "",
       register: false,
       snackbar: false,
@@ -155,8 +151,9 @@ export default {
   methods: {
     validate() {
       if (this.$refs.form.validate()) {
+        this.loading=true
         let params = { email: this.emailLogin, password: this.passwordLogin };
-        
+
         logIn(params)
           .then(response => {
             const auth = response.data.token;
@@ -165,9 +162,11 @@ export default {
             this.$store.commit("setId", id); // mutating to store for client rendering
             Cookie.set("auth", auth); // saving token in cookie for server rendering
             Cookie.set("id", id); // saving token in cookie for server rendering
+            this.loading=false
             this.$router.push("/");
           })
           .catch(error => {
+            this.loading=false
             this.textSnackbar = "El usuario o contraseña es incorrecto";
             this.snackbar = true;
             (this.name = ""), (this.password = "");

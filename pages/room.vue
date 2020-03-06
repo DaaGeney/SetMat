@@ -71,6 +71,7 @@
 import io from "socket.io-client";
 import { url } from "../config";
 import { createRoom } from "../helpers/apiCalls/rooms";
+import { retrieveConcepts } from "../helpers/apiCalls/concepts";
 const socket = io(url);
 
 export default {
@@ -111,8 +112,10 @@ export default {
       }
     },
     startGame() {
-      socket.emit("startGame", { startGame: true });
-      alert("La sala ha iniciado"); //QUITAR ESTO
+      retrieveConcepts().then(response => {
+        socket.emit("startGame", { data: responde.data.data });
+        alert("La sala ha iniciado"); //QUITAR ESTO
+      });
     }
   }
 };

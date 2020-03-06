@@ -10,20 +10,20 @@
 
       <v-container class="fill-height" fluid>
         <v-row align="center" justify="center">
-          <v-col cols="12" sm="8" md="4">
+          <v-col cols="12" sm="8" md="8">
             <v-card class="elevation-12">
               <v-toolbar color="primary" dark flat>
                 <v-toolbar-title>¡Hola, profe!</v-toolbar-title>
-               
+
                 <v-spacer />
               </v-toolbar>
-               <v-progress-linear
-                  :active="loading"
-                  :indeterminate="loading"
-                  absolute
-                  bottom
-                  color="primary"
-                ></v-progress-linear>
+              <v-progress-linear
+                :active="loading"
+                :indeterminate="loading"
+                absolute
+                bottom
+                color="primary"
+              ></v-progress-linear>
 
               <v-card-text>
                 <v-form ref="form" v-if="!register" v-model="valid" lazy-validation>
@@ -37,7 +37,6 @@
                     v-model="emailLogin"
                     required
                   />
-
                   <v-text-field
                     id="passwordLogin"
                     label="Contraseña"
@@ -51,7 +50,7 @@
 
                   <v-card-actions>
                     <v-spacer />
-                    <v-btn color="primary" @click="register = true" text>¿No estás registrado?</v-btn>
+                    <v-btn color="primary" @click="change" text>¿No estás registrado?</v-btn>
 
                     <v-btn
                       rounded
@@ -97,7 +96,7 @@
 
                   <v-card-actions>
                     <v-spacer />
-                    <v-btn color="primary" @click="register = false" text>Estoy registrado</v-btn>
+                    <v-btn color="primary" @click="change" text>Estoy registrado</v-btn>
 
                     <v-btn
                       rounded
@@ -124,7 +123,7 @@ export default {
   data() {
     return {
       textSnackbar: "",
-      loading:false,
+      loading: false,
       name: "",
       register: false,
       snackbar: false,
@@ -151,7 +150,7 @@ export default {
   methods: {
     validate() {
       if (this.$refs.form.validate()) {
-        this.loading=true
+        this.loading = true;
         let params = { email: this.emailLogin, password: this.passwordLogin };
 
         logIn(params)
@@ -162,20 +161,22 @@ export default {
             this.$store.commit("setId", id); // mutating to store for client rendering
             Cookie.set("auth", auth); // saving token in cookie for server rendering
             Cookie.set("id", id); // saving token in cookie for server rendering
-            this.loading=false
+            this.loading = false;
+            this.$refs.form.reset();
+        this.$refs.form.reset();
             this.$router.push("/");
           })
           .catch(error => {
-            this.loading=false
+            this.loading = false;
             this.textSnackbar = "El usuario o contraseña es incorrecto";
             this.snackbar = true;
-            (this.name = ""), (this.password = "");
-            this.email = "";
+            
           });
       }
     },
     registerUser() {
       if (this.$refs.form.validate()) {
+        this.loading = true;
         let params = {
           name: this.name,
           email: this.email,
@@ -186,14 +187,20 @@ export default {
             this.snackbarSuccess = true;
             this.textSnackbar = "Registro correcto";
             this.snackbarSuccess = true;
-
+            this.loading = false;
             this.register = false;
+            this.$refs.form.reset();
           })
           .catch(error => {
             this.textSnackbar = error.response.data.message;
             this.snackbar = true;
+            this.loading = false;
           });
       }
+    },
+    change() {
+      this.$refs.form.reset();
+      this.register ? this.register = false : this.register=true
     }
   }
 };

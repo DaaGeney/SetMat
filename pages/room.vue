@@ -2,7 +2,7 @@
   <v-app>
     <v-content>
       <v-container>
-        <v-card elevation="10">
+        <v-card elevation="10" v-if="!roomCreated">
           <v-card-title class="font-weight-black">CREAR SALA</v-card-title>
           <v-row align="center" justify="center">
             <v-col cols="11" sm="11">
@@ -19,22 +19,12 @@
                   min-width="100%"
                   rounded
                   color="primary"
-                  v-show="!startRoom"
                   dark
                   @click="createUniqueRoom"
                   >Crear sala</v-btn
                 >
               </v-form>
             </v-col>
-            <v-btn
-              style="margin-bottom: 20px;"
-              min-width="40%"
-              rounded
-              color="secondary"
-              v-show="startRoom"
-              @click="startGame"
-              >Empezar juego</v-btn
-            >
           </v-row>
         </v-card>
       </v-container>
@@ -60,6 +50,14 @@
                   </tbody>
                 </template>
               </v-simple-table>
+              <v-btn
+                style="margin-bottom: 20px;"
+                min-width="100%"
+                rounded
+                color="primary"
+                @click="startGame"
+                >Empezar juego</v-btn
+              >
             </v-col>
           </v-row>
         </v-card>
@@ -80,8 +78,8 @@ export default {
     return {
       roomCreated: false,
       startRoom: false,
-      codeRoom: "",
       teamsRoom: "",
+      roomExists: false,
       category: "",
       categoryRules: [v => !!v || "Debe digitar categoria"]
     };
@@ -96,6 +94,10 @@ export default {
     });
     socket.on("getWebTeams", data => {
       this.teamsRoom = data.teams;
+    });
+
+    socket.on("timer", data => {
+      console.log(data);  
     });
   },
   methods: {
@@ -112,10 +114,8 @@ export default {
       }
     },
     startGame() {
-      retrieveConcepts().then(response => {
-        socket.emit("startGame", { data: responde.data.data });
-        alert("La sala ha iniciado"); //QUITAR ESTO
-      });
+      socket.emit("startGame", { startGame: true });
+      this.$router.push("/game");
     }
   }
 };

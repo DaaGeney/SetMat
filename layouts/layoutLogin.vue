@@ -7,10 +7,9 @@
         }}
       </v-snackbar>
       <v-snackbar v-model="snackbarSuccess" top color="success" :timeout="3000">{{ textSnackbar }}</v-snackbar>
-
       <v-container class="fill-height" fluid>
         <v-row align="center" justify="center">
-          <v-col cols="12" sm="8" md="8">
+          <v-col cols="12" sm="8" md="5" xs="6">
             <v-card class="elevation-12">
               <v-toolbar color="primary" dark flat>
                 <v-toolbar-title>¡Hola, profe!</v-toolbar-title>
@@ -50,18 +49,26 @@
 
                   <v-card-actions>
                     <v-spacer />
-                    <v-btn color="primary" @click="change" text>¿No estás registrado?</v-btn>
-
-                    <v-btn
-                      rounded
-                      color="primary"
-                      :disabled="!valid"
-                      @click="validate"
-                    >Iniciar sesion</v-btn>
+                    <v-row>
+                      <v-col>
+                        <v-btn color="primary" @click="change" text>¿No estás registrado?</v-btn>
+                      </v-col>
+                      <v-col>
+                        <v-btn
+                          rounded
+                          color="primary"
+                          :disabled="!valid"
+                          @click="validate"
+                         
+                        >Iniciar sesion</v-btn>
+                      
+                      </v-col>
+                    </v-row>
                   </v-card-actions>
                 </v-form>
                 <v-form v-else ref="form" v-model="valid" lazy-validation>
-                  <v-text-field
+                  <div>
+                    <v-text-field
                     id="name"
                     label="Nombre"
                     name="name"
@@ -69,8 +76,11 @@
                     type="text"
                     :rules="nameRules"
                     v-model="name"
+                    
                     required
                   />
+                  
+                  
 
                   <v-text-field
                     id="email"
@@ -93,17 +103,23 @@
                     :rules="passwordRules"
                     required
                   />
+                  </div>
 
                   <v-card-actions>
                     <v-spacer />
-                    <v-btn color="primary" @click="change" text>Estoy registrado</v-btn>
-
-                    <v-btn
-                      rounded
-                      color="primary"
-                      :disabled="!valid"
-                      @click="registerUser"
-                    >Registrar</v-btn>
+                    <v-row>
+                      <v-col>
+                        <v-btn color="primary" @click="change" text>Estoy registrado</v-btn>
+                      </v-col>
+                      <v-col>
+                        <v-btn
+                          rounded
+                          color="primary"
+                          :disabled="!valid"
+                          @click="registerUser"
+                        >Registrar</v-btn>
+                      </v-col>
+                    </v-row>
                   </v-card-actions>
                 </v-form>
               </v-card-text>
@@ -163,14 +179,13 @@ export default {
             Cookie.set("id", id); // saving token in cookie for server rendering
             this.loading = false;
             this.$refs.form.reset();
-        this.$refs.form.reset();
+            this.$refs.form.reset();
             this.$router.push("/");
           })
           .catch(error => {
             this.loading = false;
             this.textSnackbar = "El usuario o contraseña es incorrecto";
             this.snackbar = true;
-            
           });
       }
     },
@@ -200,8 +215,9 @@ export default {
     },
     change() {
       this.$refs.form.reset();
-      this.register ? this.register = false : this.register=true
+      this.register ? (this.register = false) : (this.register = true);
     }
-  }
+  },
+ 
 };
 </script>

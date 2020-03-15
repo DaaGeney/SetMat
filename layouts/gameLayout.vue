@@ -1,11 +1,11 @@
 <template>
   <v-app style="
     
-    background: linear-gradient(to right, #64b1ec, #171be1, #090ca5);
+    background-image: url(background.png)
   ">
     <v-content>
       <v-container>
-        <v-form>
+        <div>
           <v-container>
             <v-row style="height: 130px" no-gutters>
               <v-col align="center" justify="center">
@@ -27,14 +27,18 @@
                 <v-col>
                   <v-card cols="12" sm="8" md="4" min-height="40%">
                     <v-card-title class="font-weight-black">Equipo</v-card-title>
+                    <v-card-text class="display-1">Puntaje: {{score}}</v-card-text>
                   </v-card>
                 </v-col>
-                <v-chip class="ma-2" x-large>00:{{time}}</v-chip>
+                <v-avatar color="white" min-width="170" min-height="170">
+                  <span class="display-2">00:15</span>
+                </v-avatar>
+                <!-- <v-chip class="ma-2" x-large>00:15</v-chip> -->
               </v-col>
             </v-row>
           </v-container>
-        </v-form>
-        <v-btn color="#2196F" nuxt dark fixed bottom right fab to="/room">
+        </div>
+        <v-btn color="#2196F" nuxt  fixed bottom right fab to="/room">
           <v-icon>mdi-logout</v-icon>
         </v-btn>
       </v-container>
@@ -52,30 +56,27 @@ export default {
       concepto: "En espera...",
       definicion: "En espera...",
       equipo: "En espera...",
-      time:"15"
+      time: "00",
+      score: "En espera..."
     };
   },
   mounted() {
     socket.on("main", data => {
       console.log(data, "llamado");
     });
+    socket.on("sendScore", data => {
+      this.score = data.data.score;
+    });
+    // socket.on("timer", data => {
+    //   // this.time=data
+    // });
     socket.on("sendQuestion", data => {
       console.log(data.body);
       this.concepto = data.body.concept;
       this.definicion = data.body.definition;
-      this.setTime()
     });
   },
-  methods: {
-    setTime() {
-      var cont = 15;
-      var timer = setInterval(() => {
-        cont--;
-        this.time=cont;
-        if (cont == 0) clearInterval(timer);
-      }, 1000);
-      ;
-    }
-  }
+  methods: {}
 };
 </script>
+

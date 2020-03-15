@@ -97,7 +97,7 @@ export default {
     });
 
     socket.on("timer", data => {
-      console.log(data);  
+      console.log(data);
     });
   },
   methods: {
@@ -114,8 +114,8 @@ export default {
       }
     },
     startGame() {
-      socket.emit("startGame", { startGame: true });
-      this.$router.push("/game");
+      socket.emit("startGame", { codeRoom: this.codeRoom });
+      this.$router.push(`/game?codeRoom=${this.codeRoom}`);
     }
   }
 };

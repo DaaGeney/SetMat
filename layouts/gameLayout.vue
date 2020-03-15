@@ -1,13 +1,8 @@
 <template>
-  <v-app
-    style="
-    
-    background: linear-gradient(to right, #64b1ec, #171be1, #090ca5);
-  "
-  >
+  <v-app style="background-image: url(background.png)">
     <v-content>
       <v-container>
-        <v-form>
+        <div>
           <v-container>
             <v-row style="height: 130px" no-gutters>
               <v-col align="center" justify="center">
@@ -35,14 +30,20 @@
                     <v-card-title class="font-weight-black"
                       >Equipo</v-card-title
                     >
+                    <v-card-text class="display-1"
+                      >Puntaje: {{ score }}</v-card-text
+                    >
                   </v-card>
                 </v-col>
-                <v-chip class="ma-2" x-large>00:{{ time }}</v-chip>
+                <v-avatar color="white" min-width="170" min-height="170">
+                  <span class="display-2">00:15</span>
+                </v-avatar>
+                <!-- <v-chip class="ma-2" x-large>00:15</v-chip> -->
               </v-col>
             </v-row>
           </v-container>
-        </v-form>
-        <v-btn color="#2196F" nuxt dark fixed bottom right fab to="/room">
+        </div>
+        <v-btn color="#2196F" nuxt fixed bottom right fab to="/room">
           <v-icon>mdi-logout</v-icon>
         </v-btn>
       </v-container>
@@ -64,7 +65,8 @@ export default {
       questionCode: "",
       nextTeam: "",
       time: "15",
-      teams: []
+      teams: [],
+      score: "En espera..."
     };
   },
   mounted() {
@@ -72,6 +74,12 @@ export default {
     socket.on("main", data => {
       console.log(data, "llamado");
     });
+    socket.on("sendScore", data => {
+      this.score = data.data.score;
+    });
+    // socket.on("timer", data => {
+    //   // this.time=data
+    // });
     socket.on("sendQuestion", data => {
       console.log(data);
       this.concepto = data.body.concept;

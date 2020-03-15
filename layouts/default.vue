@@ -82,7 +82,7 @@ export default {
     logout(){
       Cookie.remove('auth')
       Cookie.remove('id')
-      this.$router.go("/login")
+      this.$router.replace("/login")
     }
   }
 };

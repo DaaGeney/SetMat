@@ -53,7 +53,7 @@
             <v-divider></v-divider>
             <v-card-actions>
               <v-btn color="blue darken-1" text @click="dialog = false">Cancelar</v-btn>
-              <v-btn color="blue darken-1" text @click="dialog = false"  to="/room">Salir</v-btn>
+              <v-btn color="blue darken-1" text @click="endGame"  >Salir</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -84,9 +84,13 @@ export default {
     };
   },
   mounted() {
+    
     this.setTime();
     socket.on("main", data => {
       console.log(data, "llamado");
+    });
+     socket.on("changeRoomStateRes", data => {
+      console.log(data, "estado");
     });
     socket.on("sendScore", data => {
       this.score = data.data.score;
@@ -120,7 +124,7 @@ export default {
       }, 15000);
     },
      endGame() {
-      socket.emit("startGame", { codeRoom: this.codeRoom });
+      socket.emit("changeRoomState", this.$route.query.codeRoom );
       this.$router.push(`/room`);
     }
   }

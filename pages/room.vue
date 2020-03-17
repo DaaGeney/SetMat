@@ -2,6 +2,7 @@
   <v-app>
     <v-content>
       <v-container>
+        <v-snackbar v-model="snackbar" top color="error" :timeout="3000">{{ textSnackbar }}</v-snackbar>
         <v-card elevation="10" v-if="!roomCreated">
           <v-card-title class="font-weight-black">CREAR SALA</v-card-title>
           <v-row align="center" justify="center">
@@ -16,14 +17,7 @@
                   shaped
                 ></v-text-field>
                 <v-card-actions>
-                  <v-btn
-                    min-width="100%"
-                    rounded
-                    color="primary"
-                    dark
-                    
-                    type="submit"
-                  >Crear sala</v-btn>
+                  <v-btn min-width="100%" rounded color="primary" dark type="submit">Crear sala</v-btn>
                 </v-card-actions>
               </v-form>
             </v-col>
@@ -82,7 +76,9 @@ export default {
       teamsRoom: "",
       roomExists: false,
       category: "",
-      categoryRules: [v => !!v || "Debe digitar categoria"]
+      categoryRules: [v => !!v || "Debe digitar categoria"],
+      snackbar: false,
+      textSnackbar:""
     };
   },
 
@@ -115,9 +111,13 @@ export default {
       }
     },
     startGame() {
-      socket.emit("startGame", { codeRoom: this.codeRoom });
-      this.$router.push(`/game?codeRoom=${this.codeRoom}`);
-      // this.$router.push({ name: 'game', params: {code: this.codeRoom  }})
+      if (this.teamsRoom.length > 1) {
+        socket.emit("startGame", { codeRoom: this.codeRoom });
+        this.$router.push(`/game?codeRoom=${this.codeRoom}`);
+      }else{
+        this.textSnackbar="Se necesitan al menos dos equipos para poder jugar"
+        this.snackbar=true
+      }
     }
   }
 };

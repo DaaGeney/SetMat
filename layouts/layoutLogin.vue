@@ -147,35 +147,6 @@ import { logIn, registerNewUser } from "../helpers/apiCalls/users";
 const Cookie = process.client ? require("js-cookie") : undefined;
 
 export default {
-  mounted() {
-    const response = axios.post(
-      "http://localhost:5000/categories/createConcept",
-      {
-        subject: "Ciencias",
-        concept: "Antiparticula del electron",
-        definition: "Antiparticula del electron",
-        img: "",
-        categories: [
-          {
-            body: "Positron",
-            status: true
-          },
-          {
-            body: "Buzon de Higgs",
-            status: false
-          },
-          {
-            body: "Foton",
-            status: false
-          },
-          {
-            body: "Rayo Gamma",
-            status: false
-          }
-        ]
-      }
-    );
-  },
   data() {
     return {
       textSnackbar: "",

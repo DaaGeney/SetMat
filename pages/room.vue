@@ -32,7 +32,7 @@
                 <p>El codigo de la sala es:</p>
                 <p class="display-2">{{ codeRoom }}</p>
               </div>
-              <v-simple-table height="200px">
+              <v-simple-table fixed-header height="200px">
                 <template v-slot:default>
                   <thead>
                     <tr>

@@ -1,16 +1,8 @@
 <template>
   <v-app id="app">
     <v-content>
-      <v-snackbar v-model="snackbar" top color="error" :timeout="3000">
-        {{ textSnackbar }}
-      </v-snackbar>
-      <v-snackbar
-        v-model="snackbarSuccess"
-        top
-        color="success"
-        :timeout="3000"
-        >{{ textSnackbar }}</v-snackbar
-      >
+      <v-snackbar v-model="snackbar" top color="error" :timeout="3000">{{ textSnackbar }}</v-snackbar>
+      <v-snackbar v-model="snackbarSuccess" top color="success" :timeout="3000">{{ textSnackbar }}</v-snackbar>
       <v-container class="fill-height" fluid>
         <v-row align="center" justify="center">
           <v-col cols="12" sm="8" md="5" xs="6">
@@ -32,6 +24,7 @@
                 <v-form
                   ref="form"
                   v-if="!register"
+                  v-on:submit.prevent="validate"
                   v-model="valid"
                   lazy-validation
                 >
@@ -60,23 +53,26 @@
                     <v-spacer />
                     <v-row>
                       <v-col>
-                        <v-btn color="primary" @click="change" text
-                          >¿No estás registrado?</v-btn
-                        >
+                        <v-btn color="primary" @click="change" text>¿No estás registrado?</v-btn>
                       </v-col>
                       <v-col>
                         <v-btn
                           rounded
                           color="primary"
                           :disabled="!valid"
-                          @click="validate"
-                          >Iniciar sesion</v-btn
-                        >
+                          type="submit"
+                        >Iniciar sesion</v-btn>
                       </v-col>
                     </v-row>
                   </v-card-actions>
                 </v-form>
-                <v-form v-else ref="form" v-model="valid" lazy-validation>
+                <v-form
+                  v-else
+                  ref="form"
+                  v-model="valid"
+                  v-on:submit.prevent="registerUser"
+                  lazy-validation
+                >
                   <div>
                     <v-text-field
                       id="name"
@@ -116,18 +112,10 @@
                     <v-spacer />
                     <v-row>
                       <v-col>
-                        <v-btn color="primary" @click="change" text
-                          >Estoy registrado</v-btn
-                        >
+                        <v-btn color="primary" @click="change" text>Estoy registrado</v-btn>
                       </v-col>
                       <v-col>
-                        <v-btn
-                          rounded
-                          color="primary"
-                          :disabled="!valid"
-                          @click="registerUser"
-                          >Registrar</v-btn
-                        >
+                        <v-btn rounded color="primary" :disabled="!valid" type="submit">Registrar</v-btn>
                       </v-col>
                     </v-row>
                   </v-card-actions>
@@ -147,6 +135,7 @@ import { logIn, registerNewUser } from "../helpers/apiCalls/users";
 const Cookie = process.client ? require("js-cookie") : undefined;
 
 export default {
+  mounted() {},
   data() {
     return {
       textSnackbar: "",

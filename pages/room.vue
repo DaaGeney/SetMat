@@ -6,7 +6,7 @@
           <v-card-title class="font-weight-black">CREAR SALA</v-card-title>
           <v-row align="center" justify="center">
             <v-col cols="11" sm="11">
-              <v-form ref="form" lazy-validation>
+              <v-form ref="form" v-on:submit.prevent="createUniqueRoom" lazy-validation>
                 <v-text-field
                   label="Categoria"
                   v-model="category"
@@ -15,14 +15,16 @@
                   required
                   shaped
                 ></v-text-field>
-                <v-btn
-                  min-width="100%"
-                  rounded
-                  color="primary"
-                  dark
-                  @click="createUniqueRoom"
-                  >Crear sala</v-btn
-                >
+                <v-card-actions>
+                  <v-btn
+                    min-width="100%"
+                    rounded
+                    color="primary"
+                    dark
+                    
+                    type="submit"
+                  >Crear sala</v-btn>
+                </v-card-actions>
               </v-form>
             </v-col>
           </v-row>
@@ -56,8 +58,7 @@
                 rounded
                 color="primary"
                 @click="startGame"
-                >Empezar juego</v-btn
-              >
+              >Empezar juego</v-btn>
             </v-col>
           </v-row>
         </v-card>
@@ -116,6 +117,7 @@ export default {
     startGame() {
       socket.emit("startGame", { codeRoom: this.codeRoom });
       this.$router.push(`/game?codeRoom=${this.codeRoom}`);
+      // this.$router.push({ name: 'game', params: {code: this.codeRoom  }})
     }
   }
 };

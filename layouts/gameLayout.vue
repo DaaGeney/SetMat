@@ -23,7 +23,7 @@
               <v-col align="center">
                 <v-col>
                   <v-card cols="12" sm="8" md="4" min-height="40%">
-                    <v-card-title class="font-weight-black">Equipo</v-card-title>
+                    <v-card-title class="font-weight-black">Equipo: {{equipo}}</v-card-title>
                     <v-card-text class="display-1">Puntaje: {{ score }}</v-card-text>
                   </v-card>
                 </v-col>
@@ -66,7 +66,7 @@
 import io from "socket.io-client";
 import { url } from "../config";
 const socket = io(url);
-import infoTeam from "../helpers/apiCalls/teams";
+import {infoTeam} from "../helpers/apiCalls/teams";
 export default {
   data() {
     return {
@@ -99,13 +99,17 @@ export default {
     //   // this.time=data
     // });
     socket.on("sendQuestion", data => {
-      console.log(data);
+      // console.log(data,"Valores");
       this.concepto = data.body.concept;
       this.definicion = data.body.definition;
       this.teamCode = data.currentTeam;
       this.nextTeam = data.nextTeam;
       this.questionCode = data.idQuestion;
       this.teams = data.teams;
+      infoTeam(this.$route.query.codeRoom,data.currentTeam).then(response=>{
+        this.equipo=response.data.data.team
+        this.score=response.data.data.score
+      })
     });
   },
   methods: {
@@ -121,7 +125,7 @@ export default {
           ],
           teams: [...this.teams]
         });
-      }, 15000);
+      }, 20000);
     },
      endGame() {
       socket.emit("changeRoomState", this.$route.query.codeRoom );

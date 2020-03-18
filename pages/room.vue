@@ -111,7 +111,7 @@ export default {
       }
     },
     startGame() {
-      if (this.teamsRoom.length > 1) {
+      if (this.teamsRoom.length > 0) {
         socket.emit("startGame", { codeRoom: this.codeRoom });
         this.$router.push(`/game?codeRoom=${this.codeRoom}`);
       }else{

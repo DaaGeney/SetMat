@@ -79,7 +79,6 @@ export default {
       time: "15",
       teams: [],
       score: "En espera...",
-   
       dialog: false
     };
   },
@@ -115,7 +114,7 @@ export default {
   methods: {
     setTime() {
       setInterval(() => {
-        let currentCode = window.location.search.split("=")[1];
+        let currentCode = this.$route.query.codeRoom;
         socket.emit("getQuestion", {
           roomInfo: [
             currentCode,
@@ -125,7 +124,7 @@ export default {
           ],
           teams: [...this.teams]
         });
-      }, 20000);
+      }, 30000);
     },
      endGame() {
       socket.emit("changeRoomState", this.$route.query.codeRoom );

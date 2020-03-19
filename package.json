@@ -11,6 +11,7 @@
     "generate": "nuxt generate",
     "test": "jest"
   },
+  
   "dependencies": {
     "@nuxtjs/axios": "^5.9.5",
     "axios": "^0.19.2",

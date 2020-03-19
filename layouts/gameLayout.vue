@@ -38,22 +38,19 @@
 
         <v-dialog v-model="dialog" scrollable max-width="300px">
           <template v-slot:activator="{ on }">
-            <v-btn color="#2196F" nuxt fixed bottom right fab v-on="on"  >
+            <v-btn color="#2196F" nuxt fixed bottom right fab v-on="on">
               <v-icon>mdi-logout</v-icon>
             </v-btn>
-          
           </template>
           <v-card>
             <v-card-title class="title">SALIR DE SALA</v-card-title>
-            
-            <v-card-text class="subtitle-2">
-            ¿Esta seguro que desea cerrar la sala? 
-            </v-card-text>
-            
+
+            <v-card-text class="subtitle-2">¿Esta seguro que desea cerrar la sala?</v-card-text>
+
             <v-divider></v-divider>
             <v-card-actions>
               <v-btn color="blue darken-1" text @click="dialog = false">Cancelar</v-btn>
-              <v-btn color="blue darken-1" text @click="endGame"  >Salir</v-btn>
+              <v-btn color="blue darken-1" text @click="endGame">Salir</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -66,7 +63,8 @@
 import io from "socket.io-client";
 import { url } from "../config";
 const socket = io(url);
-import {infoTeam} from "../helpers/apiCalls/teams";
+import { infoTeam } from "../helpers/apiCalls/teams";
+var executeFunction;
 export default {
   data() {
     return {
@@ -83,12 +81,11 @@ export default {
     };
   },
   mounted() {
-    
     this.setTime();
     socket.on("main", data => {
       console.log(data, "llamado");
     });
-     socket.on("changeRoomStateRes", data => {
+    socket.on("changeRoomStateRes", data => {
       console.log(data, "estado");
     });
     socket.on("sendScore", data => {
@@ -105,15 +102,17 @@ export default {
       this.nextTeam = data.nextTeam;
       this.questionCode = data.idQuestion;
       this.teams = data.teams;
-      infoTeam(this.$route.query.codeRoom,data.currentTeam).then(response=>{
-        this.equipo=response.data.data.team
-        this.score=response.data.data.score
-      })
+      infoTeam(this.$route.query.codeRoom, data.currentTeam).then(response => {
+        console.log(this.$route.query.codeRoom, "codigo de sala desde front")
+        console.log(data.currentTeam, "codigo de team desde front")
+        this.equipo = response.data.data.team;
+        this.score = response.data.data.score;
+      });
     });
   },
   methods: {
     setTime() {
-      setInterval(() => {
+      executeFunction = setInterval(() => {
         let currentCode = this.$route.query.codeRoom;
         socket.emit("getQuestion", {
           roomInfo: [
@@ -126,8 +125,9 @@ export default {
         });
       }, 30000);
     },
-     endGame() {
-      socket.emit("changeRoomState", this.$route.query.codeRoom );
+    endGame() {
+      clearInterval(executeFunction);
+      socket.emit("changeRoomState", this.$route.query.codeRoom);
       this.$router.push(`/room`);
     }
   }

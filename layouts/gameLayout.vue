@@ -103,8 +103,6 @@ export default {
       this.questionCode = data.idQuestion;
       this.teams = data.teams;
       infoTeam(this.$route.query.codeRoom, data.currentTeam).then(response => {
-        console.log(this.$route.query.codeRoom, "codigo de sala desde front")
-        console.log(data.currentTeam, "codigo de team desde front")
         this.equipo = response.data.data.team;
         this.score = response.data.data.score;
       });

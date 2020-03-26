@@ -28,7 +28,7 @@
                   </v-card>
                 </v-col>
                 <v-avatar color="white" min-width="170" min-height="170">
-                  <span class="display-2">00:15</span>
+                  <span class="display-2">00:{{time}}</span>
                 </v-avatar>
                 <!-- <v-chip class="ma-2" x-large>00:15</v-chip> -->
               </v-col>
@@ -74,7 +74,7 @@ export default {
       teamCode: "",
       questionCode: "",
       nextTeam: "",
-      time: "15",
+      time: 30,
       teams: [],
       score: "En espera...",
       dialog: false
@@ -107,21 +107,35 @@ export default {
         this.score = response.data.data.score;
       });
     });
+    socket.on("gameOver", data => {
+      clearInterval(executeFunction);
+      socket.emit("changeRoomState", this.$route.query.codeRoom);
+      this.$router.push(`/room`);
+    });
   },
   methods: {
     setTime() {
+      let counter = 0;
       executeFunction = setInterval(() => {
-        let currentCode = this.$route.query.codeRoom;
-        socket.emit("getQuestion", {
-          roomInfo: [
-            currentCode,
-            this.teamCode,
-            this.questionCode,
-            this.nextTeam
-          ],
-          teams: [...this.teams]
-        });
-      }, 30000);
+        if (counter >= 30) {
+          console.log(counter);
+          counter = 0;
+          this.time = 30;
+          let currentCode = this.$route.query.codeRoom;
+          socket.emit("getQuestion", {
+            roomInfo: [
+              currentCode,
+              this.teamCode,
+              this.questionCode,
+              this.nextTeam
+            ],
+            teams: [...this.teams]
+          });
+        } else {
+          counter++;
+          this.time--;
+        }
+      }, 1000);
     },
     endGame() {
       clearInterval(executeFunction);

@@ -4,6 +4,38 @@
       <v-container>
         <div>
           <v-container>
+            <v-overlay :absolute="absolute" :value="overlay">
+              <v-row>
+                <v-col min-width="700px">
+                  <v-card cols="12" sm="8" md="4" min-width="650px">
+                    <v-card-title align="center" justify="center">GAME OVER</v-card-title>
+                    <v-card-text align="center" justify="center">
+                      <p class="title">Equipo ganador: {{ win }}</p>
+                      <v-simple-table fixed-header height="200px">
+                        <template v-slot:default>
+                          <thead>
+                            <tr>
+                              <th class="text-left">Nombre equipo</th>
+                              <th class="text-left">Puntaje</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr v-for="team in teams" :key="team.team">
+                              <td>{{ team.team }}</td>
+                              <td>{{ team.score }}</td>
+                            </tr>
+                          </tbody>
+                        </template>
+                      </v-simple-table>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-btn min-width="100%" rounded color="primary" @click="backTo" dark>Salir</v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-col>
+              </v-row>
+            </v-overlay>
+
             <v-row style="height: 130px" no-gutters>
               <v-col align="center" justify="center">
                 <v-card cols="12" sm="8" md="4" min-height="90%">
@@ -23,8 +55,22 @@
               <v-col align="center">
                 <v-col>
                   <v-card cols="12" sm="8" md="4" min-height="40%">
-                    <v-card-title class="font-weight-black">Equipo: {{equipo}}</v-card-title>
-                    <v-card-text class="display-1">Puntaje: {{ score }}</v-card-text>
+                    <v-simple-table fixed-header height="200px">
+                      <template v-slot:default>
+                        <thead>
+                          <tr>
+                            <th class="text-left">Nombre equipo</th>
+                            <th class="text-left">Puntaje</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="team in teams" :key="team.team">
+                            <td>{{ team.team }}</td>
+                            <td>{{ team.score }}</td>
+                          </tr>
+                        </tbody>
+                      </template>
+                    </v-simple-table>
                   </v-card>
                 </v-col>
                 <v-avatar color="white" min-width="170" min-height="170">
@@ -35,7 +81,6 @@
             </v-row>
           </v-container>
         </div>
-
         <v-dialog v-model="dialog" scrollable max-width="300px">
           <template v-slot:activator="{ on }">
             <v-btn color="#2196F" nuxt fixed bottom right fab v-on="on">
@@ -77,7 +122,11 @@ export default {
       time: 30,
       teams: [],
       score: "En espera...",
-      dialog: false
+      dialog: false,
+      absolute: true,
+      overlay: false,
+      win: "",
+      scoreWin: 0
     };
   },
   mounted() {
@@ -89,28 +138,38 @@ export default {
       console.log(data, "estado");
     });
     socket.on("sendScore", data => {
-      this.score = data.data.score;
+      //this.score = data.data.score;
+      for (let i = 0; i < this.teams.length; i++) {
+        infoTeam(this.$route.query.codeRoom, this.teams[i].teamId).then(
+          response => {
+            this.teams[i].score = response.data.data.score;
+          }
+        );
+      }
     });
     // socket.on("timer", data => {
     //   // this.time=data
     // });
     socket.on("sendQuestion", data => {
-      // console.log(data,"Valores");
       this.concepto = data.body.concept;
       this.definicion = data.body.definition;
       this.teamCode = data.currentTeam;
       this.nextTeam = data.nextTeam;
       this.questionCode = data.idQuestion;
       this.teams = data.teams;
-      infoTeam(this.$route.query.codeRoom, data.currentTeam).then(response => {
-        this.equipo = response.data.data.team;
-        this.score = response.data.data.score;
-      });
+      for (let i = 0; i < this.teams.length; i++) {
+        infoTeam(this.$route.query.codeRoom, this.teams[i].teamId).then(
+          response => {
+            this.teams[i].score = response.data.data.score;
+          }
+        );
+      }
     });
     socket.on("gameOver", data => {
       clearInterval(executeFunction);
       socket.emit("changeRoomState", this.$route.query.codeRoom);
-      this.$router.push(`/room`);
+      this.winner()
+      this.overlay = !this.overlay;
     });
   },
   methods: {
@@ -118,7 +177,6 @@ export default {
       let counter = 0;
       executeFunction = setInterval(() => {
         if (counter >= 30) {
-          console.log(counter);
           counter = 0;
           this.time = 30;
           let currentCode = this.$route.query.codeRoom;
@@ -140,7 +198,59 @@ export default {
     endGame() {
       clearInterval(executeFunction);
       socket.emit("changeRoomState", this.$route.query.codeRoom);
+      this.dialog = false;
+      this.winner()
+      this.overlay = !this.overlay;
+    },
+    burbleSort() {
+      let auxTeams = [...this.teams];
+      for (var i = 1; i < auxTeams.length; i++) {
+        for (var j = 0; j < auxTeams.length - i; j++) {
+          if (auxTeams[j].score > auxTeams[j + 1].score) {
+            let k = auxTeams[j + 1];
+            auxTeams[j + 1] = auxTeams[j];
+            auxTeams[j] = k;
+            console.log("Cambiando men");
+          }
+        }
+      }
+      console.log(auxTeams);
+      this.teams = auxTeams;
+    },
+    backTo() {
+      this.overlay = false;
       this.$router.push(`/room`);
+    },
+    sort() {
+      let array = [...this.teams]
+      let mapped = array.map(function(el, i) {
+        return { index: i, value: el.score };
+      });
+
+      mapped.sort((a, b) => {
+        if (a.value > b.value) {
+          return 1;
+        }
+        if (a.value < b.value) {
+          return -1;
+        }
+        return 0;
+      });
+
+      var result = mapped.map(function(el) {
+        return array[el.index];
+      });
+
+      result.reverse();
+      this.teams = result
+    },
+    winner(){
+      this.teams.forEach(team => {
+        if(team.score>this.scoreWin){
+          this.scoreWin = team.score
+          this.win = team.team
+        }
+      });
     }
   }
 };

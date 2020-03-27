@@ -93,9 +93,9 @@ export default {
       this.teamsRoom = data.teams;
     });
 
-    socket.on("timer", data => {
-      console.log(data);
-    });
+    // socket.on("timer", data => {
+    //   console.log(data);
+    // });
   },
   methods: {
     createUniqueRoom() {

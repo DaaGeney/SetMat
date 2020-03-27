@@ -179,7 +179,6 @@ export default {
             Cookie.set("id", id); // saving token in cookie for server rendering
             this.loading = false;
             this.$refs.form.reset();
-            this.$refs.form.reset();
             this.$router.push("/");
           })
           .catch(error => {

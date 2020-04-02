@@ -83,10 +83,12 @@
         </div>
         <v-dialog v-model="dialog" scrollable max-width="300px">
           <template v-slot:activator="{ on }">
+            
             <v-btn color="#2196F" nuxt fixed bottom right fab v-on="on">
               <v-icon>mdi-logout</v-icon>
             </v-btn>
           </template>
+         
           <v-card>
             <v-card-title class="title">SALIR DE SALA</v-card-title>
 
@@ -168,7 +170,7 @@ export default {
     socket.on("gameOver", data => {
       clearInterval(executeFunction);
       socket.emit("changeRoomState", this.$route.query.codeRoom);
-      this.winner()
+      this.winner();
       this.overlay = !this.overlay;
     });
   },
@@ -199,7 +201,7 @@ export default {
       clearInterval(executeFunction);
       socket.emit("changeRoomState", this.$route.query.codeRoom);
       this.dialog = false;
-      this.winner()
+      this.winner();
       this.overlay = !this.overlay;
     },
     burbleSort() {
@@ -222,7 +224,7 @@ export default {
       this.$router.push(`/room`);
     },
     sort() {
-      let array = [...this.teams]
+      let array = [...this.teams];
       let mapped = array.map(function(el, i) {
         return { index: i, value: el.score };
       });
@@ -242,13 +244,13 @@ export default {
       });
 
       result.reverse();
-      this.teams = result
+      this.teams = result;
     },
-    winner(){
+    winner() {
       this.teams.forEach(team => {
-        if(team.score>this.scoreWin){
-          this.scoreWin = team.score
-          this.win = team.team
+        if (team.score > this.scoreWin) {
+          this.scoreWin = team.score;
+          this.win = team.team;
         }
       });
     }

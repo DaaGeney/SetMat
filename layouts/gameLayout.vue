@@ -123,6 +123,7 @@ export default {
       nextTeam: "",
       time: 30,
       teams: [],
+      teamsToServer: [],
       score: "En espera...",
       dialog: false,
       absolute: true,
@@ -139,33 +140,51 @@ export default {
     socket.on("changeRoomStateRes", data => {
       console.log(data, "estado");
     });
-    socket.on("sendScore", data => {
-      //this.score = data.data.score;
-      for (let i = 0; i < this.teams.length; i++) {
-        infoTeam(this.$route.query.codeRoom, this.teams[i].teamId).then(
-          response => {
-            this.teams[i].score = response.data.data.score;
-          }
-        );
-      }
+    socket.on("sendScore", async data => {
+      const getTeam = teamData => {
+        return new Promise(resolve => {
+          infoTeam(this.$route.query.codeRoom, teamData.teamId).then(
+            response => {
+              resolve(response.data.data);
+            }
+          );
+        });
+      };
+
+      const resultTeam = await Promise.all(
+        this.teams.map(async e => await getTeam(e))
+      );
+
+      this.teams = resultTeam;
+      // this.teamsToServer = resultTeam
+      this.sort();
     });
     // socket.on("timer", data => {
     //   // this.time=data
     // });
-    socket.on("sendQuestion", data => {
+    socket.on("sendQuestion", async data => {
       this.concepto = data.body.concept;
       this.definicion = data.body.definition;
       this.teamCode = data.currentTeam;
       this.nextTeam = data.nextTeam;
       this.questionCode = data.idQuestion;
-      this.teams = data.teams;
-      for (let i = 0; i < this.teams.length; i++) {
-        infoTeam(this.$route.query.codeRoom, this.teams[i].teamId).then(
-          response => {
-            this.teams[i].score = response.data.data.score;
-          }
-        );
-      }
+      const getTeam = teamData => {
+        return new Promise(resolve => {
+          infoTeam(this.$route.query.codeRoom, teamData.teamId).then(
+            response => {
+              resolve(response.data.data);
+            }
+          );
+        });
+      };
+
+      const resultTeam = await Promise.all(
+        data.teams.map(async e => await getTeam(e))
+      );
+
+      this.teams = resultTeam;
+      this.teamsToServer = data.teams
+      this.sort();
     });
     socket.on("gameOver", data => {
       clearInterval(executeFunction);
@@ -189,7 +208,7 @@ export default {
               this.questionCode,
               this.nextTeam
             ],
-            teams: [...this.teams]
+            teams: [...this.teamsToServer]
           });
         } else {
           counter++;
@@ -212,11 +231,9 @@ export default {
             let k = auxTeams[j + 1];
             auxTeams[j + 1] = auxTeams[j];
             auxTeams[j] = k;
-            console.log("Cambiando men");
           }
         }
       }
-      console.log(auxTeams);
       this.teams = auxTeams;
     },
     backTo() {

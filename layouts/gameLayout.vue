@@ -55,7 +55,7 @@
               <v-col align="center">
                 <v-col>
                   <v-card cols="12" sm="8" md="4" min-height="40%">
-                    <v-simple-table fixed-header height="200px">
+                    <v-simple-table fixed-header height="270px">
                       <template v-slot:default>
                         <thead>
                           <tr>
@@ -65,7 +65,16 @@
                         </thead>
                         <tbody>
                           <tr v-for="team in teams" :key="team.team">
-                            <td>{{ team.team }}</td>
+                            <td>
+                              {{ team.team }}
+                              <v-chip
+                                v-if="team.team == equipo"
+                                class="ma-2"
+                                color="blue"
+                                outlined
+                              >En turno</v-chip>
+                            </td>
+
                             <td>{{ team.score }}</td>
                           </tr>
                         </tbody>
@@ -83,12 +92,11 @@
         </div>
         <v-dialog v-model="dialog" scrollable max-width="300px">
           <template v-slot:activator="{ on }">
-            
             <v-btn color="#2196F" nuxt fixed bottom right fab v-on="on">
               <v-icon>mdi-logout</v-icon>
             </v-btn>
           </template>
-         
+
           <v-card>
             <v-card-title class="title">SALIR DE SALA</v-card-title>
 
@@ -117,7 +125,7 @@ export default {
     return {
       concepto: "En espera...",
       definicion: "En espera...",
-      equipo: "En espera...",
+      equipo: "",
       teamCode: "",
       questionCode: "",
       nextTeam: "",
@@ -168,6 +176,9 @@ export default {
       this.teamCode = data.currentTeam;
       this.nextTeam = data.nextTeam;
       this.questionCode = data.idQuestion;
+      infoTeam(this.$route.query.codeRoom, data.currentTeam).then(response => {
+        this.equipo = response.data.data.team;
+      });
       const getTeam = teamData => {
         return new Promise(resolve => {
           infoTeam(this.$route.query.codeRoom, teamData.teamId).then(
@@ -183,14 +194,14 @@ export default {
       );
 
       this.teams = resultTeam;
-      this.teamsToServer = data.teams
+      this.teamsToServer = data.teams;
       this.sort();
     });
     socket.on("gameOver", data => {
       clearInterval(executeFunction);
       socket.emit("changeRoomState", this.$route.query.codeRoom);
       this.winner();
-      this.overlay = !this.overlay;
+      this.overlay = true;
     });
   },
   methods: {
@@ -218,10 +229,11 @@ export default {
     },
     endGame() {
       clearInterval(executeFunction);
-      socket.emit("changeRoomState", this.$route.query.codeRoom);
+      // socket.emit("changeRoomState", this.$route.query.codeRoom);
       this.dialog = false;
       this.winner();
-      this.overlay = !this.overlay;
+      this.overlay = true;
+      socket.emit("onGameOver", this.$route.query.codeRoom);
     },
     burbleSort() {
       let auxTeams = [...this.teams];

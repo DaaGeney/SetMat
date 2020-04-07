@@ -3,15 +3,14 @@
     <v-content>
       <v-container>
         <v-row justify="center">
-          
           <v-dialog v-model="dialog" persistent max-width="600px">
             <template v-slot:activator="{ on }">
               <v-hover v-slot:default="{ hover }" close-delay="200">
                 <v-card v-on="on" class="ma-2" :elevation="hover ? 16 : 2">
-                  <v-card-text class="headline">Crear concepto y categorias
+                  <v-card-text class="headline">
+                    Crear concepto y categorias
                     <v-icon size="60" color="grey lighten-1">mdi-plus-circle-outline</v-icon>
                   </v-card-text>
-                  
                 </v-card>
               </v-hover>
             </template>
@@ -119,6 +118,8 @@
 <script>
 import { createCategory } from "../helpers/apiCalls/categories";
 import { getSubjects } from "../helpers/apiCalls/categories";
+const Cookie = process.client ? require("js-cookie") : undefined;
+
 export default {
   middleware: "authenticated",
   data() {
@@ -133,11 +134,15 @@ export default {
       category3: "",
       category4: "",
       radio: "",
-      nameRules: [v => !!v || "Campo necesario"]
+      nameRules: [v => !!v || "Campo necesario"],
+      config: ""
     };
   },
   mounted() {
-    getSubjects()
+    this.config = {
+      headers: { authorization: Cookie.get("auth") }
+    };
+    getSubjects(this.config)
       .then(response => {
         this.items = response.data.data;
       })
@@ -172,10 +177,11 @@ export default {
             }
           ]
         };
-        createCategory(dates)
+        createCategory(dates, this.config)
           .then(response => {
             console.log(response);
             this.$refs.form.reset();
+            this.dialog = false;
           })
           .catch(error => {
             alert(error);

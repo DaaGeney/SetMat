@@ -119,6 +119,8 @@ import io from "socket.io-client";
 import { url } from "../config";
 const socket = io(url);
 import { infoTeam } from "../helpers/apiCalls/teams";
+import { getRoomInfo } from "../helpers/apiCalls/rooms";
+const Cookie = process.client ? require("js-cookie") : undefined;
 var executeFunction;
 export default {
   data() {
@@ -137,11 +139,19 @@ export default {
       absolute: true,
       overlay: false,
       win: "",
-      scoreWin: 0
+      scoreWin: 0,
+      config: "",
+      currentCategory: ""
     };
   },
   mounted() {
-    this.setTime();
+    this.config = {
+      headers: { authorization: Cookie.get("auth") }
+    };
+    getRoomInfo(this.$route.query.codeRoom, this.config).then(response => {
+      this.currentCategory = response.data.data.category
+      this.setTime();
+    });
     socket.on("main", data => {
       console.log(data, "llamado");
     });
@@ -151,11 +161,13 @@ export default {
     socket.on("sendScore", async data => {
       const getTeam = teamData => {
         return new Promise(resolve => {
-          infoTeam(this.$route.query.codeRoom, teamData.teamId).then(
-            response => {
-              resolve(response.data.data);
-            }
-          );
+          infoTeam(
+            this.$route.query.codeRoom,
+            teamData.teamId,
+            this.config
+          ).then(response => {
+            resolve(response.data.data);
+          });
         });
       };
 
@@ -176,16 +188,20 @@ export default {
       this.teamCode = data.currentTeam;
       this.nextTeam = data.nextTeam;
       this.questionCode = data.idQuestion;
-      infoTeam(this.$route.query.codeRoom, data.currentTeam).then(response => {
-        this.equipo = response.data.data.team;
-      });
+      infoTeam(this.$route.query.codeRoom, data.currentTeam, this.config).then(
+        response => {
+          this.equipo = response.data.data.team;
+        }
+      );
       const getTeam = teamData => {
         return new Promise(resolve => {
-          infoTeam(this.$route.query.codeRoom, teamData.teamId).then(
-            response => {
-              resolve(response.data.data);
-            }
-          );
+          infoTeam(
+            this.$route.query.codeRoom,
+            teamData.teamId,
+            this.config
+          ).then(response => {
+            resolve(response.data.data);
+          });
         });
       };
 
@@ -219,7 +235,9 @@ export default {
               this.questionCode,
               this.nextTeam
             ],
-            teams: [...this.teamsToServer]
+            teams: [...this.teamsToServer],
+            category: this.currentCategory,
+            token: Cookie.get("auth")
           });
         } else {
           counter++;

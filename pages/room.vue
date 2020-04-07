@@ -8,8 +8,15 @@
           <v-row align="center" justify="center">
             <v-col cols="11" sm="11">
               <v-form ref="form" v-on:submit.prevent="createUniqueRoom" lazy-validation>
-                <v-autocomplete  :items="items" no-data-text="No se encuentran categorias" v-model="category" required :rules="categoryRules" label="Tematica"></v-autocomplete>
-               
+                <v-autocomplete
+                  :items="items"
+                  no-data-text="No se encuentran categorias"
+                  v-model="category"
+                  required
+                  :rules="categoryRules"
+                  label="Tematica"
+                ></v-autocomplete>
+
                 <v-card-actions>
                   <v-btn min-width="100%" rounded color="primary" dark type="submit">Crear sala</v-btn>
                 </v-card-actions>
@@ -59,6 +66,7 @@ import io from "socket.io-client";
 import { url } from "../config";
 import { createRoom } from "../helpers/apiCalls/rooms";
 import { getSubjects } from "../helpers/apiCalls/categories";
+const Cookie = process.client ? require("js-cookie") : undefined;
 const socket = io(url);
 
 export default {
@@ -73,13 +81,17 @@ export default {
       categoryRules: [v => !!v || "Debe seleccionar categoria"],
       snackbar: false,
       textSnackbar: "",
-      items:[]
+      items: [],
+      config: ""
     };
   },
   mounted() {
     /**
      * Listerners for the sockets
      */
+    this.config = {
+      headers: { Authorization: Cookie.get("auth") }
+    };
     socket.on("main", data => {
       console.log(data, "llamado");
     });
@@ -87,10 +99,10 @@ export default {
       this.teamsRoom = data.teams;
     });
 
-    getSubjects()
+    getSubjects(this.config)
       .then(response => {
         console.log(response.data.data);
-        this.items=response.data.data
+        this.items = response.data.data;
       })
       .catch(error => {
         alert(error);
@@ -103,7 +115,8 @@ export default {
   methods: {
     createUniqueRoom() {
       if (this.$refs.form.validate()) {
-        createRoom({ category: this.category })
+        let categoryTemp = {category: this.category }
+        createRoom(categoryTemp,this.config)
           .then(response => {
             this.startRoom = true;
             this.codeRoom = response.data.data.uniqueCode;

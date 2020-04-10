@@ -198,7 +198,6 @@ export default {
         };
         registerNewUser(params)
           .then(response => {
-            this.snackbarSuccess = true;
             this.textSnackbar = "Registro correcto";
             this.snackbarSuccess = true;
             this.loading = false;

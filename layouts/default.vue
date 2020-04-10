@@ -63,6 +63,11 @@ export default {
           icon: "mdi-plus",
           title: "Crear una sala",
           to: "/room"
+        },
+        {
+          icon: "mdi-plus",
+          title: "Crear nuevo concepto",
+          to: "/newQuestion"
         }
       ],
       miniVariant: false,

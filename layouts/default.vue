@@ -58,17 +58,17 @@ export default {
           title: "Inicio",
           to: "/"
         },
-
-        {
-          icon: "mdi-plus",
-          title: "Crear una sala",
-          to: "/room"
-        },
         {
           icon: "mdi-plus",
           title: "Crear nuevo concepto",
           to: "/newQuestion"
+        },
+        {
+          icon: "mdi-plus",
+          title: "Crear una sala",
+          to: "/room"
         }
+        
       ],
       miniVariant: false,
       title: "SetMat"

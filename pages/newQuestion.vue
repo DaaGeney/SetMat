@@ -2,13 +2,13 @@
   <v-app>
     <v-content>
       <v-container>
-          <v-progress-linear
-                :active="loading"
-                :indeterminate="loading"
-                absolute
-                bottom
-                color="primary"
-              ></v-progress-linear>
+        <v-progress-linear
+          :active="loading"
+          :indeterminate="loading"
+          absolute
+          bottom
+          color="primary"
+        ></v-progress-linear>
         <v-row justify="center">
           <v-snackbar v-model="snackbar" top color="error" :timeout="3000">{{ textSnackbar }}</v-snackbar>
           <v-snackbar
@@ -26,7 +26,7 @@
                 <v-container>
                   <v-row>
                     <v-col cols="12">
-                        <v-btn icon>
+                      <v-btn icon>
                         <v-icon color="grey lighten-1">mdi-information</v-icon>
                       </v-btn>
                       <small dense>Digite el nombre de una nueva tematica o selecciona una existente</small>
@@ -38,7 +38,6 @@
                         required
                         outlined
                       ></v-combobox>
-                      
                     </v-col>
                     <v-col cols="12">
                       <v-text-field
@@ -58,9 +57,9 @@
                         required
                         outlined
                       ></v-textarea>
-                        <v-subheader class="title">Categorias</v-subheader>
+                      <v-subheader class="title">Categorias</v-subheader>
                     </v-col>
-                  
+
                     <v-col cols="12">
                       <v-textarea
                         v-model="category1"
@@ -99,7 +98,6 @@
                         outlined
                       ></v-textarea>
                     </v-col>
-                    
                   </v-row>
                   <v-subheader>Seleccione la categoria correcta</v-subheader>
                   <v-radio-group v-model="radio" mandatory row>
@@ -143,68 +141,85 @@ export default {
       radio: "",
       nameRules: [v => !!v || "Campo necesario"],
       config: "",
-      snackbar:"",
-      snackbarSuccess:"",
-      loading:false,
-      textSnackbar:""
+      snackbar: "",
+      snackbarSuccess: "",
+      loading: false,
+      textSnackbar: ""
     };
   },
   mounted() {
     this.config = {
       headers: { authorization: Cookie.get("auth") }
     };
-    getSubjects(this.config)
-      .then(response => {
-        this.items = response.data.data;
-      })
-      .catch(error => {
-        alert(error);
-      });
+    this.getAllSubjects();
   },
   methods: {
+    getAllSubjects: function() {
+      getSubjects(this.config)
+        .then(response => {
+          this.items = response.data.data;
+        })
+        .catch(error => {
+          alert(error);
+        });
+    },
     create() {
-      if (this.$refs.form.validate()) {
-          this.loading=true
-        let dates = {
-          subject: this.subject,
-          concept: this.concept,
-          definition: this.definition,
-          img: "",
-          categories: [
-            {
-              body: this.category1,
-              status: this.radio == "radio-1" ? true : false
-            },
-            {
-              body: this.category2,
-              status: this.radio == "radio-2" ? true : false
-            },
-            {
-              body: this.category3,
-              status: this.radio == "radio-3" ? true : false
-            },
-            {
-              body: this.category4,
-              status: this.radio == "radio-4" ? true : false
-            }
-          ]
-        };
-        createCategory(dates, this.config)
-          .then(response => {
-            console.log(response);
-            this.$refs.form.reset();
-            this.loading=false
-             this.textSnackbar = "Concepto creado";
-            this.snackbarSuccess = true;
-          })
-          .catch(error => {
-            this.loading=false
-            this.textSnackbar = error;
-            this.snackbar = true;
-          });
+      const hasDuplicates = array => new Set(array).size !== array.length;
+      if (
+        !hasDuplicates([
+          this.category1,
+          this.category2,
+          this.category3,
+          this.category4
+        ])
+      ) {
+        if (this.$refs.form.validate()) {
+          this.loading = true;
+          let dates = {
+            subject: this.subject,
+            concept: this.concept,
+            definition: this.definition,
+            img: "",
+            categories: [
+              {
+                body: this.category1,
+                status: this.radio == "radio-1" ? true : false
+              },
+              {
+                body: this.category2,
+                status: this.radio == "radio-2" ? true : false
+              },
+              {
+                body: this.category3,
+                status: this.radio == "radio-3" ? true : false
+              },
+              {
+                body: this.category4,
+                status: this.radio == "radio-4" ? true : false
+              }
+            ]
+          };
+          createCategory(dates, this.config)
+            .then(response => {
+              console.log(response);
+              this.$refs.form.reset();
+              this.loading = false;
+              this.textSnackbar = "Concepto creado";
+              this.snackbarSuccess = true;
+              this.getAllSubjects();
+            })
+            .catch(error => {
+              this.loading = false;
+              this.textSnackbar = error;
+              this.snackbar = true;
+            });
+        } else {
+          this.textSnackbar = "Faltan campos por digitar";
+          this.snackbar = true;
+        }
       } else {
-           this.textSnackbar = "Faltan campos por digitar";
-            this.snackbar = true;
+        this.textSnackbar = "Verifique que las categorias sean diferentes";
+        this.snackbar = true;
       }
     },
     exit() {

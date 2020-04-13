@@ -108,9 +108,7 @@ export default {
         alert(error);
       });
 
-    // socket.on("timer", data => {
-    //   console.log(data);
-    // });
+  
   },
   methods: {
     createUniqueRoom() {

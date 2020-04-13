@@ -201,7 +201,6 @@ export default {
           };
           createCategory(dates, this.config)
             .then(response => {
-              console.log(response);
               this.$refs.form.reset();
               this.loading = false;
               this.textSnackbar = "Concepto creado";

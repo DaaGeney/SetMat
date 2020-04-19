@@ -10,7 +10,7 @@
               <v-form ref="form" v-on:submit.prevent="createUniqueRoom" lazy-validation>
                 <v-autocomplete
                   :items="items"
-                  no-data-text="No se encuentran categorias"
+                  no-data-text="No se encuentran tematicas"
                   v-model="category"
                   required
                   :rules="categoryRules"
@@ -65,7 +65,7 @@
 import io from "socket.io-client";
 import { url } from "../config";
 import { createRoom } from "../helpers/apiCalls/rooms";
-import { getSubjects } from "../helpers/apiCalls/categories";
+import { getAllSubjects } from "../helpers/apiCalls/subjects";
 const Cookie = process.client ? require("js-cookie") : undefined;
 const socket = io(url);
 
@@ -99,13 +99,14 @@ export default {
       this.teamsRoom = data.teams;
     });
 
-    getSubjects(this.config)
+    getAllSubjects(this.config)
       .then(response => {
-        console.log(response.data.data);
-        this.items = response.data.data;
+         response.data.data.forEach(element => {
+            this.items.push(element.subject);
+          });
+        
       })
       .catch(error => {
-        alert(error);
       });
 
   

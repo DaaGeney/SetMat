@@ -60,7 +60,7 @@ export default {
         },
         {
           icon: "mdi-plus",
-          title: "Crear nuevo concepto",
+          title: "Crear tematica - concepto",
           to: "/newQuestion"
         },
         {

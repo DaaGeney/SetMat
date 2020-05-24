@@ -9,7 +9,6 @@
             <v-card class="elevation-12">
               <v-toolbar color="primary" dark flat>
                 <v-toolbar-title>¡Hola, profe!</v-toolbar-title>
-
                 <v-spacer />
               </v-toolbar>
               <v-progress-linear
@@ -62,6 +61,52 @@
                           :disabled="!valid"
                           type="submit"
                         >Iniciar sesion</v-btn>
+                      </v-col>
+                      <v-col align="center" justify="center">
+                        <div class="text-center">
+                          <v-dialog v-model="dialog" persistent width="500">
+                            <template v-slot:activator="{ on }">
+                              <v-btn
+                                class="caption"
+                                color="primary"
+                                v-on="on"
+                                text
+                              >Olvidé mi contraseña</v-btn>
+                            </template>
+
+                            <v-form
+                              ref="formRestore"
+                              v-on:submit.prevent="restorePassword"
+                              lazy-validation
+                            >
+                              <v-card>
+                                <v-card-title
+                                  class="headline grey lighten-2"
+                                  primary-title
+                                >Restaurar Contraseña</v-card-title>
+
+                                <v-card-text>
+                                  <v-text-field
+                                    id="emailRestore"
+                                    label="Correo electronico"
+                                    name="RestoreEmail"
+                                    prepend-icon="email"
+                                    type="email"
+                                    :rules="emailRules"
+                                    v-model="restoreEmail"
+                                    required
+                                  />
+                                </v-card-text>
+                                <v-divider></v-divider>
+                                <v-card-actions>
+                                  <v-spacer></v-spacer>
+                                  <v-btn color="blue darken-1" text @click="dialog = false">Cancelar</v-btn>
+                                  <v-btn color="blue darken-1" text type="submit">Restaurar</v-btn>
+                                </v-card-actions>
+                              </v-card>
+                            </v-form>
+                          </v-dialog>
+                        </div>
                       </v-col>
                     </v-row>
                   </v-card-actions>
@@ -131,15 +176,17 @@
 
 <script>
 import axios from "axios";
-import { logIn, registerNewUser } from "../helpers/apiCalls/users";
+import { logIn, registerNewUser, sendEmail } from "../helpers/apiCalls/users";
 const Cookie = process.client ? require("js-cookie") : undefined;
 
 export default {
   mounted() {},
   data() {
     return {
+      dialog: false,
       textSnackbar: "",
       loading: false,
+      restoreEmail: "",
       name: "",
       register: false,
       snackbar: false,
@@ -214,6 +261,24 @@ export default {
     change() {
       this.$refs.form.reset();
       this.register ? (this.register = false) : (this.register = true);
+    },
+    restorePassword: function() {
+      if (this.$refs.formRestore.validate()) {
+        sendEmail({ email: this.restoreEmail })
+          .then(response => {
+            this.textSnackbar = response.data.message;
+            this.snackbarSuccess = true;
+            this.$refs.formRestore.reset();
+            this.dialog = false;
+          })
+          .catch(error => {
+            this.textSnackbar = "Error interno, intenta mas tarde";
+            this.snackbar = true;
+          });
+      } else {
+        this.textSnackbar = "Digite un email válido";
+        this.snackbar = true;
+      }
     }
   }
 };

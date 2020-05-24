@@ -8,3 +8,12 @@ export const logIn = (body,config) => {
 export const registerNewUser = (body,config) => {
   return axios.post(`${url}/user/createUser`, body,config);
 };
+
+export const sendEmail = (body) => {
+  return axios.post(`${url}/user/restorePassword`, body);
+};
+
+export const changePassword = (body,config) => {
+  return axios.post(`${url}/user/changePassword`, body,config);
+};
+

@@ -16,6 +16,18 @@
                   :rules="categoryRules"
                   label="Tematica"
                 ></v-autocomplete>
+                <v-text-field
+                  id="quantity"
+                  label="Cantidad máxima equipos"
+                  name="quantity"
+                  prepend-icon="number"
+                  type="number"
+                  :rules="nameRules"
+                  v-model="numberTeams"
+                  required
+                  min="2"
+                  max="6"
+                />
 
                 <v-card-actions>
                   <v-btn min-width="100%" rounded color="primary" dark type="submit">Crear sala</v-btn>
@@ -74,7 +86,9 @@ export default {
   data() {
     return {
       roomCreated: false,
+      numberTeams: 2,
       startRoom: false,
+      nameRules: [v => !!v || "Nombre necesario"],
       teamsRoom: "",
       roomExists: false,
       category: "",
@@ -101,28 +115,32 @@ export default {
 
     getAllSubjects(this.config)
       .then(response => {
-         response.data.data.forEach(element => {
-            this.items.push(element.subject);
-          });
-        
+        response.data.data.forEach(element => {
+          this.items.push(element.subject);
+        });
       })
-      .catch(error => {
-      });
-
-  
+      .catch(error => {});
   },
   methods: {
     createUniqueRoom() {
       if (this.$refs.form.validate()) {
-        let categoryTemp = {category: this.category }
-        createRoom(categoryTemp,this.config)
-          .then(response => {
-            this.startRoom = true;
-            this.codeRoom = response.data.data.uniqueCode;
-            this.roomCreated = true;
-            this.teamsRoom = {};
-          })
-          .catch(err => alert(err));
+        if (this.numberTeams >= 2 && this.numberTeams <= 6) {
+          let categoryTemp = {
+            category: this.category,
+            numMax: this.numberTeams
+          };
+          createRoom(categoryTemp, this.config)
+            .then(response => {
+              this.startRoom = true;
+              this.codeRoom = response.data.data.uniqueCode;
+              this.roomCreated = true;
+              this.teamsRoom = {};
+            })
+            .catch(err => alert(err));
+        } else {
+          this.textSnackbar = "El numero maximo de equipos es 6";
+          this.snackbar = true;
+        }
       }
     },
     startGame() {

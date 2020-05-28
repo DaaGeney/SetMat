@@ -137,7 +137,7 @@
                         </v-col>
 
                         <v-col cols="12">
-                          <v-textarea
+                          <v-textarea 
                             v-model="category1"
                             auto-grow
                             label="Categoria 1*"

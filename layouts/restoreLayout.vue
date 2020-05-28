@@ -18,7 +18,7 @@
                 bottom
                 color="primary"
               ></v-progress-linear>
-
+ 
               <v-card-text>
                 <v-form ref="form" v-on:submit.prevent="restore" v-model="valid" lazy-validation>
                   <v-text-field
@@ -83,6 +83,7 @@ export default {
     restore: function() {
       if (this.$refs.form.validate()) {
         if (this.key === this.verifyKey) {
+          this.loading = true;
           let data = {
             email: this.$route.query.user.replace("%40", "@"),
             newPassword: this.verifyKey
@@ -97,10 +98,12 @@ export default {
                 this.snackbarSuccess = true;
                 this.$router.push(`/login`);
                 this.$refs.form.reset();
+                this.loading = false;
               } else {
                 this.textSnackbar =
                   "No eres tú, somos nosotros. Intenta más tarde.";
                 this.snackbar = true;
+                this.loading = false;
               }
             })
             .catch(error => {

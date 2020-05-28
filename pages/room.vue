@@ -8,19 +8,24 @@
           <v-row align="center" justify="center">
             <v-col cols="11" sm="11">
               <v-form ref="form" v-on:submit.prevent="createUniqueRoom" lazy-validation>
-                <v-autocomplete
+               
+                  <v-autocomplete
                   :items="items"
                   no-data-text="No se encuentran tematicas"
                   v-model="category"
                   required
                   :rules="categoryRules"
                   label="Tematica"
+                  prepend-icon="mdi-format-list-checks"
                 ></v-autocomplete>
+              
+                
                 <v-text-field
+                  width="2opx"
                   id="quantity"
                   label="Cantidad máxima equipos"
                   name="quantity"
-                  prepend-icon="number"
+                  prepend-icon="mdi-account-multiple"
                   type="number"
                   :rules="nameRules"
                   v-model="numberTeams"
@@ -28,7 +33,6 @@
                   min="2"
                   max="6"
                 />
-
                 <v-card-actions>
                   <v-btn min-width="100%" rounded color="primary" dark type="submit">Crear sala</v-btn>
                 </v-card-actions>

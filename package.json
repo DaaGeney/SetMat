@@ -4,6 +4,7 @@
   "description": "Videojuego SetMat",
   "author": "Diego Assia",
   "private": true,
+  "heroku-postbuild": "nuxt-ts build",
   "scripts": {
     "dev": "nuxt",
     "build": "nuxt build",
